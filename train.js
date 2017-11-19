@@ -43,19 +43,7 @@ const labels = imgFiles
   .filter(isNotImageFive)
   .map(file => nameMappings.findIndex(name => file.includes(name)));
 
-const runPrediction = (recognizer) => {
-  testImages.forEach((img) => {
-    const result = recognizer.predict(img);
-    console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
-    cv.imshow('face', img);
-    cv.waitKey();
-});
-};
-
 const faceRecognizer = new cv.FisherFaceRecognizer();
 
 faceRecognizer.train(trainImages, labels);
 faceRecognizer.save('./trained');
-
-// console.log('predictions:');
-// runPrediction(faceRecognizer);
