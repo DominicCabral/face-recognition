@@ -1,61 +1,58 @@
-const fs = require('fs');
-const path = require('path');
-const cv = require('opencv4nodejs');
 const NodeWebcam = require( "node-webcam" );
+const cv = require('opencv4nodejs');
+const fs = require('fs');
 
-if (!cv.xmodules.face) {
-  return console.log('exiting: opencv4nodejs compiled without face module');
-}
-
-const imgsPath = './imgs';
-const nameMappings = ['jamie', 'dominic', 'tim'];
-
-const imgFiles = fs.readdirSync(imgsPath);
-
-const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
-const getFaceImage = (grayImg) => {
-  const faceRects = classifier.detectMultiScale(grayImg).objects;
-  if (!faceRects.length) {
-    throw new Error('failed to detect faces');
-  }
-  return grayImg.getRegion(faceRects[0]);
+var opts = {
+    //Picture related 
+    width: 1280,
+    height: 720,
+    quality: 100,
+ 
+    //Delay to take shot 
+    delay: 0,
+ 
+    //Save shots in memory 
+    saveShots: true,
+ 
+    // [jpeg, png] support varies 
+    // Webcam.OutputTypes 
+    output: "jpeg",
+ 
+    //Which camera to use 
+    //Use Webcam.list() for results 
+    //false for default device 
+    device: false,
+ 
+    // [location, buffer, base64] 
+    // Webcam.CallbackReturnTypes 
+    callbackReturn: "location",
+ 
+    //Logging 
+    verbose: false
 };
 
-const images = imgFiles
-  // get absolute file path
-  .map(file => path.resolve(imgsPath, file))
-  // read image
-  .map(filePath => cv.imread(filePath))
-  // face recognizer works with gray scale images
-  .map(img => img.bgrToGray())
-  // detect and extract face
-  .map(getFaceImage)
-  // face images must be equally sized
-  .map(faceImg => faceImg.resize(80, 80));
-
-const isImageFive = (_, i) => imgFiles[i].includes('5');
-const isNotImageFive = (_, i) => !isImageFive(_, i);
-// use images 1 - 4 for training
-const trainImages = images.filter(isNotImageFive);
-// use images 5 for testing
-const testImages = images.filter(isImageFive);
-// make labels
-const labels = imgFiles
-  .filter(isNotImageFive)
-  .map(file => nameMappings.findIndex(name => file.includes(name)));
-
-const runPrediction = (recognizer) => {
-  testImages.forEach((img) => {
-    const result = recognizer.predict(img);
-    console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
-    cv.imshow('face', img);
-    cv.waitKey();
-});
-};
-
+var Webcam = NodeWebcam.create( opts );
 const faceRecognizer = new cv.FisherFaceRecognizer();
+const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
+const nameMappings = ['jamie', 'dominic', 'tim'];
+const picFileName = 'picture.jpg';
+faceRecognizer.load('./trained');
 
-faceRecognizer.train(trainImages, labels);
-
-console.log('predictions:');
-runPrediction(faceRecognizer);
+Webcam.capture( picFileName, function( err, data ) {
+    let img = cv.imread(data).bgrToGray();
+    let faceRects = classifier.detectMultiScale(img).objects;
+    if (faceRects.length) {
+        img = img.getRegion(faceRects[0]).resize(80, 80);
+        let result = faceRecognizer.predict(img);
+        console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
+        cv.imshow('face', img);
+        cv.waitKey();
+        fs.unlink('./'+picFileName, (err) => {
+            if (err) throw err;
+            console.log('successfully deleted:',picFileName);
+          });
+      }
+      else{
+          console.log('no face found')
+      }
+} );
