@@ -36,7 +36,7 @@ const faceRecognizer = new cv.FisherFaceRecognizer();
 const classifier = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_ALT2);
 const nameMappings = ['jamie', 'dominic', 'tim'];
 const picFileName = 'picture.jpg';
-faceRecognizer.load('./trained');
+faceRecognizer.load('./trained.yaml');
 
 Webcam.capture( picFileName, function( err, data ) {
     let img = cv.imread(data).bgrToGray();
