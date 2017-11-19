@@ -46,4 +46,4 @@ const labels = imgFiles
 const faceRecognizer = new cv.FisherFaceRecognizer();
 
 faceRecognizer.train(trainImages, labels);
-faceRecognizer.save('./trained');
+faceRecognizer.save('./trained.yaml');
