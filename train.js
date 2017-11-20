@@ -7,7 +7,7 @@ if (!cv.xmodules.face) {
 }
 
 const imgsPath = './imgs';
-const nameMappings = ['jamie', 'dominic', 'tim'];
+const nameMappings = ['jamie', 'dominic', 'tim','kelsey','olivia'];
 
 const imgFiles = fs.readdirSync(imgsPath);
 
@@ -45,5 +45,34 @@ const labels = imgFiles
 
 const faceRecognizer = new cv.FisherFaceRecognizer();
 
-faceRecognizer.train(trainImages, labels);
-faceRecognizer.save('./trained.yaml');
+const eigen = new cv.EigenFaceRecognizer();
+const fisher = new cv.FisherFaceRecognizer();
+const lbph = new cv.LBPHFaceRecognizer();
+eigen.train(trainImages, labels);
+fisher.train(trainImages, labels);
+lbph.train(trainImages, labels);
+
+eigen.save('eigan.yaml');
+
+lbph.save('lbph.yaml');
+
+const runPrediction = (recognizer) => {
+  testImages.forEach((img) => {
+    const result = recognizer.predict(img);
+    console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
+    cv.imshowWait('face', img);
+    cv.destroyAllWindows();
+  });
+};
+
+console.log('eigen')
+
+runPrediction(eigen);
+
+console.log('fisher')
+
+runPrediction(fisher);
+
+console.log('lbph')
+
+runPrediction(lbph);
