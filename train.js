@@ -43,18 +43,9 @@ const labels = imgFiles
   .filter(isNotImageFive)
   .map(file => nameMappings.findIndex(name => file.includes(name)));
 
-const faceRecognizer = new cv.FisherFaceRecognizer();
-
-const eigen = new cv.EigenFaceRecognizer();
-const fisher = new cv.FisherFaceRecognizer();
 const lbph = new cv.LBPHFaceRecognizer();
-eigen.train(trainImages, labels);
-fisher.train(trainImages, labels);
+
 lbph.train(trainImages, labels);
-
-eigen.save('eigan.yaml');
-
-lbph.save('lbph.yaml');
 
 const runPrediction = (recognizer) => {
   testImages.forEach((img) => {
@@ -65,14 +56,8 @@ const runPrediction = (recognizer) => {
   });
 };
 
-console.log('eigen')
-
-runPrediction(eigen);
-
-console.log('fisher')
-
-runPrediction(fisher);
-
 console.log('lbph')
 
 runPrediction(lbph);
+
+lbph.save('lbph.yaml');
