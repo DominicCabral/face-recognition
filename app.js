@@ -41,18 +41,19 @@ faceRecognizer.load('./lbph.yaml');
 Webcam.capture( picFileName, function( err, data ) {
     let img = cv.imread(data).bgrToGray();
     let faceRects = classifier.detectMultiScale(img).objects;
+    
     if (faceRects.length) {
         img = img.getRegion(faceRects[0]).resize(80, 80);
         let result = faceRecognizer.predict(img);
         console.log('predicted: %s, confidence: %s', nameMappings[result.label], result.confidence);
         cv.imshow('face', img);
         cv.waitKey();
-        fs.unlink('./'+picFileName, (err) => {
-            if (err) throw err;
-            console.log('successfully deleted:',picFileName);
-          });
-      }
-      else{
-          console.log('no face found')
-      }
+    } else {
+        console.log('no face found')
+    }
+
+    fs.unlink('./'+picFileName, (err) => {
+    if (err) throw err;
+    console.log('successfully deleted:',picFileName);
+    });
 } );
