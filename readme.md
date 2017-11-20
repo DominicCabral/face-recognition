@@ -1,6 +1,6 @@
 # Face Recognition
 
-A fun little experiment with [opencv4nodejs](https://www.npmjs.com/package/opencv4nodejs).
+A fun little experiment with [opencv4nodejs](https://www.npmjs.com/package/opencv4nodejs) to detect my roommate's faces.
 
 Running `node train.js` trains a model using opencv4nodejs. This data (picture of my roomates faces) is then exported to `./lbph.yaml`.
 
